@@ -17,7 +17,10 @@ def make_comparison(filename, y_test, y_pred, confidence, title=None):
     f, ax = plt.subplots(1, 1, figsize=(8, 6))
 
     ax.plot((vmin, vmax), (vmin, vmax), 'k--')
-    ax.errorbar(y_test, y_pred, yerr=confidence, fmt='ko')
+    if confidence is not None:
+        ax.errorbar(y_test, y_pred, yerr=confidence, fmt='ko')
+    else:
+        ax.plot(y_test, y_pred, 'ko')
 
     ax.set_xlim(vmin, vmax)
     ax.set_ylim(vmin, vmax)
@@ -31,7 +34,10 @@ def make_comparison(filename, y_test, y_pred, confidence, title=None):
 def make_graph(filename, x_test, y_test, y_pred, confidence, title=None):
     f, ax = plt.subplots(1, 1, figsize=(8, 6))
 
-    ax.errorbar(x_test, y_pred, yerr=confidence, fmt='k.', label="Prediction")
+    if confidence is not None:
+        ax.errorbar(x_test, y_pred, yerr=confidence, fmt='k.', label="Prediction")
+    else:
+        ax.plot(x_test, y_pred, 'ko')
     ax.plot(x_test, y_test, 'r*', label="Observation")
 
     ax.set_xlabel('Input')
