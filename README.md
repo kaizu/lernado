@@ -1,0 +1,5 @@
+# lernado
+
+```
+$ python test.py
+```
