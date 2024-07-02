@@ -7,8 +7,52 @@ logger = getLogger(__name__)
 import numpy
 
 import torch
-import gpytorch
 
+class NeuralNetworkModel(torch.nn.Module):
+
+    def __init__(self):
+        super(NeuralNetworkModel, self).__init__()
+        self.stack = torch.nn.Sequential(torch.nn.Linear(1, 1), )
+
+    def forward(self, x):
+        x = self.stack(x)
+        return x
+
+class PyTorchLearner:
+
+    def __init__(self, x_train, y_train):
+        self.x_train = x_train
+        self.y_train = y_train
+        self.model = NeuralNetworkModel()
+
+    def train(self, num_epochs=50, learning_rate=0.1):
+        x_train = torch.from_numpy(self.x_train).clone().float()
+        y_train = torch.from_numpy(self.y_train).clone().float()
+
+        self.model.train()
+
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate)
+        criterion = torch.nn.MSELoss()
+
+        for epoch in range(num_epochs):
+            optimizer.zero_grad()
+            outputs = self.model(x_train.view(-1, 1))
+            loss = criterion(outputs, y_train.view(-1, 1))
+            loss.backward()
+            optimizer.step()
+
+    def predict(self, x_test):
+        self.model.eval()
+
+        with torch.no_grad():
+            prediction = self.model(torch.from_numpy(x_test).clone().float().view(-1, 1))
+            y_test = prediction.detach().numpy().flatten()
+
+        confidence = None
+        return (y_test, confidence)
+
+import torch
+import gpytorch
 
 class ExactGPModel(gpytorch.models.ExactGP):
 
@@ -34,23 +78,23 @@ class GPyTorchLearner:
             likelihood)
         assert self.model.likelihood is likelihood
 
-    def train(self, niter=50):
+    def train(self, num_epochs=50, learning_rate=0.1):
         x_train = torch.from_numpy(self.x_train).clone()
         y_train = torch.from_numpy(self.y_train).clone()
 
         self.model.train()
         self.model.likelihood.train()
 
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.1)
-        mll = gpytorch.mlls.ExactMarginalLogLikelihood(self.model.likelihood, self.model)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+        criterion = gpytorch.mlls.ExactMarginalLogLikelihood(self.model.likelihood, self.model)
 
-        for i in range(niter):
+        for i in range(num_epochs):
             optimizer.zero_grad()
             output = self.model(x_train)
-            loss = -mll(output, y_train)
+            loss = -criterion(output, y_train)
             loss.backward()
             msg = "Iter {:d}/{:d} - Loss: {:.3f}   lengthscale: {:.3f}   noise: {:.3f}".format(
-                i + 1, niter, loss.item(),
+                i + 1, num_epochs, loss.item(),
                 self.model.covar_module.base_kernel.lengthscale.item(),
                 self.model.likelihood.noise.item()
                 )

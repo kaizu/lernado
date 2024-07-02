@@ -6,17 +6,18 @@ logger = getLogger(__name__)
 
 import problems
 import plots
-from learner import GPyTorchLearner, ScikitLearnLearner
+from learner import PyTorchLearner, GPyTorchLearner, ScikitLearnLearner
 
 
-# y, x = problems.generate_linear_datasets(100)
+y, x = problems.generate_linear_datasets(100)
 # y, x = problems.generate_sigmoid_datasets(100)
-y, x = problems.generate_sine_curve_datasets(100)
+# y, x = problems.generate_sine_curve_datasets(100)
 y_train, x_train = y[: 80], x[: 80]
 y_test, x_test = y[80: ], x[80: ]
 
-learner = ScikitLearnLearner(x_train, y_train)
+# learner = ScikitLearnLearner(x_train, y_train)
 # learner = GPyTorchLearner(x_train, y_train)
+learner = PyTorchLearner(x_train, y_train)
 learner.train()
 (y_pred, confidence) = learner.predict(x_test)
 
