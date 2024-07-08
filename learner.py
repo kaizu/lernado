@@ -12,7 +12,16 @@ class NeuralNetworkModel(torch.nn.Module):
 
     def __init__(self):
         super(NeuralNetworkModel, self).__init__()
-        self.stack = torch.nn.Sequential(torch.nn.Linear(1, 1), )
+        hidden = 10
+        self.stack = torch.nn.Sequential(
+            torch.nn.Linear(1, hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(hidden, hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(hidden, hidden),
+            torch.nn.ReLU(),
+            torch.nn.Linear(hidden, 1),
+            )
 
     def forward(self, x):
         x = self.stack(x)
@@ -34,12 +43,16 @@ class PyTorchLearner:
         optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate)
         criterion = torch.nn.MSELoss()
 
+        losses = []
         for epoch in range(num_epochs):
             optimizer.zero_grad()
             outputs = self.model(x_train.view(-1, 1))
             loss = criterion(outputs, y_train.view(-1, 1))
             loss.backward()
             optimizer.step()
+
+            losses.append(loss.item())
+        return numpy.array(losses)
 
     def predict(self, x_test):
         self.model.eval()
@@ -88,6 +101,7 @@ class GPyTorchLearner:
         optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
         criterion = gpytorch.mlls.ExactMarginalLogLikelihood(self.model.likelihood, self.model)
 
+        losses = []
         for i in range(num_epochs):
             optimizer.zero_grad()
             output = self.model(x_train)
@@ -100,6 +114,8 @@ class GPyTorchLearner:
                 )
             logger.info(msg)
             optimizer.step()
+            losses.append(loss.item())
+        return numpy.array(losses)
 
     def predict(self, x_test):
         self.model.eval()
@@ -131,6 +147,7 @@ class ScikitLearnLearner:
 
     def train(self):
         self.gaussian_process.fit(self.x_train.reshape(-1, 1), self.y_train)
+        return None
 
     def predict(self, x_test):
         y_pred, std_prediction = self.gaussian_process.predict(x_test.reshape(-1, 1), return_std=True)
