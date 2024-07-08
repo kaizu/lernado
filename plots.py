@@ -4,6 +4,8 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
+import numpy
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -44,5 +46,16 @@ def make_graph(filename, x_test, y_test, y_pred, confidence, title=None):
     ax.set_ylabel('Output')
     if title is not None: ax.set_title(title)
     plt.legend(loc='best')
+    plt.savefig(filename)
+    plt.clf()
+
+def make_loss_history(filename, losses, title=None):
+    f, ax = plt.subplots(1, 1, figsize=(8, 6))
+
+    ax.plot(numpy.arange(len(losses)), losses, 'k-')
+
+    ax.set_xlabel('Number of epochs')
+    ax.set_ylabel('Loss')
+    if title is not None: ax.set_title(title)
     plt.savefig(filename)
     plt.clf()
