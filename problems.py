@@ -18,19 +18,25 @@ def linear_problem(x, weight=1.0, bias=0.0):
     return weight * x + bias
 
 def white_noise(x, scale=1.0):
-    return x + numpy.random.normal(scale=1.0, size=len(x))
+    return numpy.random.normal(scale=scale, size=len(x))
 
-def generate_linear_datasets(n):
+def generate_linear_datasets(n, noise=1.0):
     x = numpy.random.uniform(0.0, 5.0, size=n)
-    y = linear_problem(x, weight=5.0, bias=2.0) + white_noise(x, scale=1.0)
+    y = linear_problem(x, weight=5.0, bias=2.0)
+    if noise > 0:
+        y += white_noise(x, scale=noise)
     return (y, x)
 
-def generate_sigmoid_datasets(n):
+def generate_sigmoid_datasets(n, noise=1.0):
     x = numpy.random.uniform(0.0, 5.0, size=n)
-    y = sigmoid_problem(x, gain=4.0, scale=5.0, loc=2.0) + white_noise(x, scale=1.0)
+    y = sigmoid_problem(x, gain=10.0, scale=5.0, loc=2.0)
+    if noise > 0:
+        y += white_noise(x, scale=noise)
     return (y, x)
 
-def generate_sine_curve_datasets(n):
+def generate_sine_curve_datasets(n, noise=1.0):
     x = numpy.random.uniform(0.0, 5.0, size=n)
-    y = sine_problem(x, amplitude=5.0, period=3.0, loc=3.0) + white_noise(x, scale=1.0)
+    y = sine_problem(x, amplitude=5.0, period=3.0, loc=3.0)
+    if noise > 0:
+        y += white_noise(x, scale=noise)
     return (y, x)
