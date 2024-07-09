@@ -4,6 +4,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
+import functools
 import numpy
 import numpy.random
 
@@ -20,23 +21,21 @@ def linear_problem(x, weight=1.0, bias=0.0):
 def white_noise(x, scale=1.0):
     return numpy.random.normal(scale=scale, size=len(x))
 
-def generate_linear_datasets(n, noise=1.0):
+def generate_datasets(func, n, noise):
     x = numpy.random.uniform(0.0, 5.0, size=n)
-    y = linear_problem(x, weight=5.0, bias=2.0)
+    y = func(x)
     if noise > 0:
         y += white_noise(x, scale=noise)
-    return (y, x)
+    return (y, x), func
+
+def generate_linear_datasets(n, noise=1.0):
+    func = functools.partial(linear_problem, weight=5.0, bias=2.0)
+    return generate_datasets(func, n, noise)
 
 def generate_sigmoid_datasets(n, noise=1.0):
-    x = numpy.random.uniform(0.0, 5.0, size=n)
-    y = sigmoid_problem(x, gain=10.0, scale=5.0, loc=2.0)
-    if noise > 0:
-        y += white_noise(x, scale=noise)
-    return (y, x)
+    func = functools.partial(sigmoid_problem, gain=10.0, scale=5.0, loc=2.0)
+    return generate_datasets(func, n, noise)
 
 def generate_sine_curve_datasets(n, noise=1.0):
-    x = numpy.random.uniform(0.0, 5.0, size=n)
-    y = sine_problem(x, amplitude=5.0, period=3.0, loc=3.0)
-    if noise > 0:
-        y += white_noise(x, scale=noise)
-    return (y, x)
+    func = functools.partial(sine_problem, amplitude=5.0, period=3.0, loc=3.0)
+    return generate_datasets(func, n, noise)
