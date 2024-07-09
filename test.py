@@ -14,19 +14,20 @@ from learner import PyTorchLearner, GPyTorchLearner, ScikitLearnLearner
 # Prepare dataset
 noise = 0.5
 # (y, x), func = problems.generate_linear_datasets(100, noise=noise)
-(y, x), func = problems.generate_sigmoid_datasets(100, noise=noise)
-# (y, x), func = problems.generate_sine_curve_datasets(100, noise=noise)
+# (y, x), func = problems.generate_sigmoid_datasets(100, noise=noise)
+# (y, x), func = problems.generate_sine_curve_datasets2(100, noise=noise)
+(y, x), func = problems.generate_sine_curve_datasets_with_lack(100, noise=noise)
 y_train, x_train = y[: 80], x[: 80]
 y_test, x_test = y[80: ], x[80: ]
 
 # Prepare model
 # learner = ScikitLearnLearner(x_train, y_train)
-learner = GPyTorchLearner(x_train, y_train)
-# learner = PyTorchLearner(x_train, y_train)
+# learner = GPyTorchLearner(x_train, y_train)
+learner = PyTorchLearner(x_train, y_train)
 
 # Train
-# losses = learner.train(num_epochs=5000, learning_rate=0.01)  # for PyTorchLearner
-losses = learner.train(num_epochs=200)  # for GPyTorchLearner
+losses = learner.train(num_epochs=5000, learning_rate=0.01)  # for PyTorchLearner
+# losses = learner.train(num_epochs=200)  # for GPyTorchLearner
 
 # Predict
 (y_pred, confidence) = learner.predict(x_test)

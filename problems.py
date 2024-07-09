@@ -21,8 +21,8 @@ def linear_problem(x, weight=1.0, bias=0.0):
 def white_noise(x, scale=1.0):
     return numpy.random.normal(scale=scale, size=len(x))
 
-def generate_datasets(func, n, noise):
-    x = numpy.random.uniform(0.0, 5.0, size=n)
+def generate_datasets(func, n, noise, x=None):
+    x = x if x is not None else numpy.random.uniform(0.0, 5.0, size=n)
     y = func(x)
     if noise > 0:
         y += white_noise(x, scale=noise)
@@ -39,3 +39,11 @@ def generate_sigmoid_datasets(n, noise=1.0):
 def generate_sine_curve_datasets(n, noise=1.0):
     func = functools.partial(sine_problem, amplitude=5.0, period=3.0, loc=3.0)
     return generate_datasets(func, n, noise)
+
+def generate_sine_curve_datasets_with_lack(n, noise=1.0):
+    n1 = int(n * 2.6 / (2.6 + 5.0 - 3.4))
+    n2 = n - n1
+    x = numpy.concatenate([numpy.random.uniform(0.0, 2.6, n1), numpy.random.uniform(3.4, 5.0, n2)])
+    numpy.random.shuffle(x)
+    func = functools.partial(sine_problem, amplitude=5.0, period=3.0, loc=3.0)
+    return generate_datasets(func, n, noise, x)
