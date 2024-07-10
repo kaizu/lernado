@@ -8,7 +8,7 @@ import numpy
 
 import problems
 import plots
-from learner import PyTorchLearner, GPyTorchLearner, ScikitLearnLearner
+from learner import MonteCarloDropoutPyTorchLearner, DeepEnsemblePyTorchLearner, GPyTorchLearner, ScikitLearnLearner
 
 
 # Prepare dataset
@@ -16,18 +16,19 @@ noise = 0.5
 # (y, x), func = problems.generate_linear_datasets(100, noise=noise)
 # (y, x), func = problems.generate_sigmoid_datasets(100, noise=noise)
 # (y, x), func = problems.generate_sine_curve_datasets2(100, noise=noise)
-(y, x), func = problems.generate_sine_curve_datasets_with_lack(100, noise=noise)
-y_train, x_train = y[: 80], x[: 80]
-y_test, x_test = y[80: ], x[80: ]
+(y, x), func = problems.generate_sine_curve_datasets_with_lack(820, noise=noise)
+y_train, x_train = y[: 800], x[: 800]
+y_test, x_test = y[800: ], x[800: ]
 
 # Prepare model
 # learner = ScikitLearnLearner(x_train, y_train)
 # learner = GPyTorchLearner(x_train, y_train)
-learner = PyTorchLearner(x_train, y_train)
+# learner = MonteCarloDropoutPyTorchLearner(x_train, y_train)
+learner = DeepEnsemblePyTorchLearner(x_train, y_train)
 
 # Train
-losses = learner.train(num_epochs=1000, learning_rate=1e-3, weight_decay=1e-4)  # for PyTorchLearner
-# losses = learner.train(num_epochs=5000, learning_rate=0.01)  # for PyTorchLearner
+# losses = learner.train(num_epochs=1000, learning_rate=1e-3, weight_decay=1e-4)  # for MonteCarloDropoutPyTorchLearner
+losses = learner.train(num_epochs=5000, learning_rate=0.01)  # for PyTorchLearner
 # losses = learner.train(num_epochs=200)  # for GPyTorchLearner
 
 # Predict
