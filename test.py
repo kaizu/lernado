@@ -26,7 +26,8 @@ y_test, x_test = y[80: ], x[80: ]
 learner = PyTorchLearner(x_train, y_train)
 
 # Train
-losses = learner.train(num_epochs=5000, learning_rate=0.01)  # for PyTorchLearner
+losses = learner.train(num_epochs=1000, learning_rate=1e-3, weight_decay=1e-4)  # for PyTorchLearner
+# losses = learner.train(num_epochs=5000, learning_rate=0.01)  # for PyTorchLearner
 # losses = learner.train(num_epochs=200)  # for GPyTorchLearner
 
 # Predict

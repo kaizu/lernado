@@ -12,14 +12,18 @@ class NeuralNetworkModel(torch.nn.Module):
 
     def __init__(self):
         super(NeuralNetworkModel, self).__init__()
-        hidden = 10
+        hidden = 1000
+        dropout_rate = 0.5
         self.stack = torch.nn.Sequential(
             torch.nn.Linear(1, hidden),
             torch.nn.ReLU(),
+            torch.nn.Dropout(p=dropout_rate),
             torch.nn.Linear(hidden, hidden),
             torch.nn.ReLU(),
+            torch.nn.Dropout(p=dropout_rate),
             torch.nn.Linear(hidden, hidden),
             torch.nn.ReLU(),
+            torch.nn.Dropout(p=dropout_rate),
             torch.nn.Linear(hidden, 1),
             )
 
@@ -34,13 +38,14 @@ class PyTorchLearner:
         self.y_train = y_train
         self.model = NeuralNetworkModel()
 
-    def train(self, num_epochs=50, learning_rate=0.1):
+    def train(self, num_epochs=50, learning_rate=0.1, weight_decay=0):
         x_train = torch.from_numpy(self.x_train).clone().float()
         y_train = torch.from_numpy(self.y_train).clone().float()
 
         self.model.train()
 
-        optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+        # optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         criterion = torch.nn.MSELoss()
 
         losses = []
@@ -55,13 +60,21 @@ class PyTorchLearner:
         return numpy.array(losses)
 
     def predict(self, x_test):
-        self.model.eval()
+        # self.model.eval()
+        self.model.train()  # Enable dropout
 
-        with torch.no_grad():
-            prediction = self.model(torch.from_numpy(x_test).clone().float().view(-1, 1))
-            y_test = prediction.detach().numpy().flatten()
+        y_preds = []
+        for _ in range(100):
+            with torch.no_grad():
+                prediction = self.model(torch.from_numpy(x_test).clone().float().view(-1, 1))
+                y_pred = prediction.detach().numpy().flatten()
+                y_preds.append(y_pred)
+        y_preds = numpy.array(y_preds)
 
-        confidence = None
+        y_test = numpy.mean(y_preds, axis=0)
+        confidence = numpy.std(y_preds, axis=0)
+        confidence = numpy.array([confidence, confidence])
+        print(y_test.shape, confidence.shape)
         return (y_test, confidence)
 
 import torch
